@@ -7,3 +7,7 @@ out/
 .env.local
 transcripts/
 .claude/settings.local.json
+
+# Aider files
+.aider*
+.aider.tags.cache.v4/
