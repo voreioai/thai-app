@@ -33,7 +33,7 @@ export function FlameIcon({ size = 17 }) {
 
 const SPEAKER_PATH = 'M11 5L6 9H3v6h3l5 4V5zM15.5 8.5a5 5 0 010 7';
 
-// Круглая кнопка 🔊
+// Round 🔊 button
 export function SpeakBtn({ text, size = 36, bg = C.bg, color = C.text, rate = RATE_NORMAL }) {
   return (
     <div
@@ -49,7 +49,7 @@ export function SpeakBtn({ text, size = 36, bg = C.bg, color = C.text, rate = RA
   );
 }
 
-// Пилюля 🐢 — медленная озвучка
+// 🐢 pill — slow speech
 export function SlowBtn({ text, height = 46 }) {
   return (
     <div
@@ -100,12 +100,12 @@ const NAV_ICONS = {
 };
 
 const NAV_ITEMS = [
-  { key: 'home', label: 'Главная' },
-  { key: 'decks', label: 'Темы' },
-  { key: 'dialogs', label: 'Диалоги' },
-  { key: 'videos', label: 'Видео' },
-  { key: 'tones', label: 'Тона' },
-  { key: 'progress', label: 'Прогресс' },
+  { key: 'home', label: 'Home' },
+  { key: 'decks', label: 'Topics' },
+  { key: 'dialogs', label: 'Dialogues' },
+  { key: 'videos', label: 'Videos' },
+  { key: 'tones', label: 'Tones' },
+  { key: 'progress', label: 'Progress' },
 ];
 
 export function BottomNav({ active, onNav }) {
@@ -129,15 +129,15 @@ export function BottomNav({ active, onNav }) {
   );
 }
 
-// Подсказка, если на устройстве нет тайского голоса TTS
+// Hint shown when the device has no Thai TTS voice
 export function NoVoiceHint() {
   return (
     <div style={{
       background: '#FFF6E0', borderRadius: 16, padding: '12px 16px', marginTop: 12,
       fontSize: 12.5, fontWeight: 600, color: '#A87B12', lineHeight: 1.5,
     }}>
-      🔇 Тайский голос не найден. Установи Thai TTS: iPhone — Настройки → Универсальный доступ →
-      Устный контент → Голоса → Тайский; Android — настройки Google TTS.
+      🔇 No Thai voice found. Install a Thai TTS voice: iPhone — Settings → Accessibility →
+      Spoken Content → Voices → Thai; Android — Google TTS settings.
     </div>
   );
 }

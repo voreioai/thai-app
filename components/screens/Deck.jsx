@@ -20,7 +20,7 @@ export default function Deck({ deck, phrases, reviews, onBack, onTrain, onToggle
         <div>
           <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: -0.5 }}>{meta.name}</div>
           <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 2 }}>
-            {learned} из {visible.length} {plural(visible.length, 'фразы', 'фраз', 'фраз')} закреплено
+            {learned} of {visible.length} {plural(visible.length, 'phrase', 'phrases')} learned
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function Deck({ deck, phrases, reviews, onBack, onTrain, onToggle
           alignItems: 'center', justifyContent: 'center', gap: 9, fontSize: 15, fontWeight: 800, marginTop: 18,
         }}>
           <svg width="13" height="13" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill={C.lime} /></svg>
-          Тренировать · {visible.length} {plural(visible.length, 'фраза', 'фразы', 'фраз')}
+          Train · {visible.length} {plural(visible.length, 'phrase', 'phrases')}
         </div>
       )}
 
@@ -60,7 +60,7 @@ export default function Deck({ deck, phrases, reviews, onBack, onTrain, onToggle
         })}
       </div>
       <div style={{ fontSize: 12, fontWeight: 500, color: C.faint, lineHeight: 1.5, marginTop: 12, padding: '0 6px' }}>
-        Минус убирает фразу из изучения и повторений. Передумали — верните её плюсом.
+        Minus removes a phrase from learning and reviews. Changed your mind? Bring it back with plus.
       </div>
     </div>
   );

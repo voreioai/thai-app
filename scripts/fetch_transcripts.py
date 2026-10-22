@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-Скачивает субтитры (транскрипции) роликов с ютуба в папку transcripts/.
-Из этих файлов вы вместе с Claude вычленяете тайские слова/фразы и заносите их
-в базу как слова видео (source='video'), после чего они всплывают в приложении.
+Downloads subtitles (transcripts) of YouTube clips into the transcripts/ folder.
+From these files you, together with Claude, pick out Thai words/phrases and add them
+to the database as video words (source='video'), after which they surface in the app.
 
-Зачем скрипт: приложение и Claude в сессии не имеют доступа к ютубу
-(закрыто сетевой политикой), поэтому транскрипции собираются на своей машине.
+Why the script: the app and Claude in a session have no access to YouTube
+(blocked by the network policy), so transcripts are collected on your own machine.
 
-Как пользоваться:
-  1. Поставить Python 3 и библиотеку:
+How to use:
+  1. Install Python 3 and the library:
        pip install youtube-transcript-api
-  2. Запустить из корня проекта:
+  2. Run from the project root:
        python scripts/fetch_transcripts.py
-  3. В папке transcripts/ появятся файлы <номер>_<id>.txt.
-     Пришли их Claude (или скопируй текст в чат) — я разберу слова по видео.
+  3. Files <number>_<id>.txt appear in the transcripts/ folder.
+     Send them to Claude (or paste the text into the chat) — I'll parse the words per video.
 
-Если у ролика нет тайских субтитров — берём английские авто-субтитры,
-из них всё равно видно, какие фразы разбираются в видео.
+If a clip has no Thai subtitles — we take the English auto-subtitles,
+which still show which phrases are covered in the video.
 """
 
 import os
 import sys
 
-# Те же 12 роликов, что и в приложении (lib/data.js → VIDEOS).
+# The same 12 clips as in the app (lib/data.js → VIDEOS).
 VIDEOS = [
     ("vpGdD9fgWsw", "The First 10 Thai Words You Must Know!"),
     ("RJGG9hOJOVo", "20 First-to-Know Thai Language Verbs"),
@@ -38,22 +38,22 @@ VIDEOS = [
     ("FSZFYNNYh38", "Counting in Thai — Numbers 1-10"),
 ]
 
-# Языки в порядке предпочтения: тайский, потом английский (в т.ч. авто).
+# Languages in order of preference: Thai, then English (including auto).
 LANGS = ["th", "en"]
 
 OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "transcripts")
 
 
 def fetch_one(video_id):
-    """Возвращает список строк субтитров или бросает исключение."""
+    """Returns a list of subtitle lines or raises an exception."""
     try:
-        # Новый API (youtube-transcript-api >= 1.0)
+        # New API (youtube-transcript-api >= 1.0)
         from youtube_transcript_api import YouTubeTranscriptApi
         api = YouTubeTranscriptApi()
         fetched = api.fetch(video_id, languages=LANGS)
         return [snippet.text for snippet in fetched]
     except (ImportError, AttributeError, TypeError):
-        # Старый API (youtube-transcript-api < 1.0)
+        # Old API (youtube-transcript-api < 1.0)
         from youtube_transcript_api import YouTubeTranscriptApi
         data = YouTubeTranscriptApi.get_transcript(video_id, languages=LANGS)
         return [row["text"] for row in data]
@@ -63,7 +63,7 @@ def main():
     try:
         import youtube_transcript_api  # noqa: F401
     except ImportError:
-        print("Не установлена библиотека. Выполни:\n  pip install youtube-transcript-api")
+        print("The library is not installed. Run:\n  pip install youtube-transcript-api")
         sys.exit(1)
 
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -74,20 +74,20 @@ def main():
             text = "\n".join(lines)
             path = os.path.join(OUT_DIR, f"{i:02d}_{vid}.txt")
             with open(path, "w", encoding="utf-8") as f:
-                f.write(f"# Видео {i}: {title}\n")
+                f.write(f"# Video {i}: {title}\n")
                 f.write(f"# https://www.youtube.com/watch?v={vid}\n\n")
                 f.write(text)
-            print(f"[OK]   Видео {i:2d}  {vid}  → {os.path.relpath(path)}  ({len(lines)} строк)")
+            print(f"[OK]   Video {i:2d}  {vid}  → {os.path.relpath(path)}  ({len(lines)} lines)")
             ok += 1
         except Exception as e:  # noqa: BLE001
-            print(f"[SKIP] Видео {i:2d}  {vid}  — нет субтитров? ({type(e).__name__})")
+            print(f"[SKIP] Video {i:2d}  {vid}  — no subtitles? ({type(e).__name__})")
             failed.append((i, vid, title))
 
-    print(f"\nГотово: {ok}/{len(VIDEOS)} роликов. Файлы в: {OUT_DIR}")
+    print(f"\nDone: {ok}/{len(VIDEOS)} clips. Files in: {OUT_DIR}")
     if failed:
-        print("Без субтитров (открой вручную «Показать текст видео» на ютубе и пришли текст):")
+        print("Without subtitles (open \"Show transcript\" on YouTube manually and send the text):")
         for i, vid, title in failed:
-            print(f"  Видео {i}: {title} — https://www.youtube.com/watch?v={vid}")
+            print(f"  Video {i}: {title} — https://www.youtube.com/watch?v={vid}")
 
 
 if __name__ == "__main__":

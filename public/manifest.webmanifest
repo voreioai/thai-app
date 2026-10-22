@@ -1,8 +1,8 @@
 {
   "name": "Thai Trainer",
   "short_name": "Thai",
-  "description": "Личный тренажёр разговорного тайского",
-  "lang": "ru",
+  "description": "Personal spoken-Thai trainer",
+  "lang": "en",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F3F3F1",

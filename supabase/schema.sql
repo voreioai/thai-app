@@ -1,5 +1,5 @@
--- Thai Trainer — схема БД. Личное однопользовательское приложение, RLS allow-all.
--- Выполни этот файл в SQL Editor нового проекта Supabase (или через /setup).
+-- Thai Trainer — database schema. Personal single-user app, RLS allow-all.
+-- Run this file in the SQL Editor of a new Supabase project (or via /setup).
 
 create table if not exists phrases (
   id uuid primary key default gen_random_uuid(),
@@ -9,7 +9,7 @@ create table if not exists phrases (
   deck text not null check (deck in ('base','num','coffee','resto','shop','market','massage')),
   source text not null default 'seed',        -- 'seed' | 'chat' | 'manual' | 'video'
   hidden boolean not null default false,
-  video_id text,                              -- id ролика, если source='video'
+  video_id text,                              -- clip id, if source='video'
   created_at timestamptz not null default now()
 );
 
@@ -32,7 +32,7 @@ create table if not exists watched_videos (
   watched_at timestamptz not null default now()
 );
 
--- RLS: включаем и разрешаем всё (личное приложение, ключ anon).
+-- RLS: enable it and allow everything (personal app, anon key).
 alter table phrases enable row level security;
 alter table reviews enable row level security;
 alter table activity enable row level security;

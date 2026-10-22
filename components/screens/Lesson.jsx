@@ -5,16 +5,16 @@ import { C, Icon, BackBtn, SpeakBtn, SlowBtn, NoVoiceHint } from '@/components/u
 import { speak } from '@/lib/tts';
 
 const GRADES = [
-  { key: 'again', label: 'Не помню', bg: '#F6E2DE', icon: 'M6 6l12 12M18 6L6 18', color: '#C4453A', w: 2 },
-  { key: 'hard', label: 'С трудом', bg: '#F4EAD0', icon: 'M4 12c2.5-3.5 5.5-3.5 8 0s5.5 3.5 8 0', color: '#A87B12', w: 2 },
-  { key: 'good', label: 'Помню', bg: '#C6F150', icon: 'M5 12.5l4.5 4.5L19 7.5', color: '#17181A', w: 2.2 },
+  { key: 'again', label: 'Forgot', bg: '#F6E2DE', icon: 'M6 6l12 12M18 6L6 18', color: '#C4453A', w: 2 },
+  { key: 'hard', label: 'Hard', bg: '#F4EAD0', icon: 'M4 12c2.5-3.5 5.5-3.5 8 0s5.5 3.5 8 0', color: '#A87B12', w: 2 },
+  { key: 'good', label: 'Got it', bg: '#C6F150', icon: 'M5 12.5l4.5 4.5L19 7.5', color: '#17181A', w: 2.2 },
 ];
 
-// Перечёркнутый глаз — «скрыть из изучения»
+// Crossed-out eye — "hide from learning"
 const HIDE_ICON = 'M3 3l18 18M10.6 5.1A10.9 10.9 0 0112 5c6.5 0 10 7 10 7a18.2 18.2 0 01-3.2 4M6.5 6.5C3.9 8.2 2 12 2 12s3.5 7 10 7c1.5 0 2.8-.3 4-.9M9.9 9.9a3 3 0 104.2 4.2';
 
-// Занятие: показ RU → «Показать ответ» → TH + транскрипция + озвучка → оценка.
-// «Не помню» возвращает карточку в конец очереди этой же сессии.
+// Session: show the meaning → "Show answer" → TH + transcription + speech → grade.
+// "Forgot" sends the card back to the end of the queue in this same session.
 export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, onFinish, onExit }) {
   const [queue, setQueue] = useState(initialQueue);
   const [idx, setIdx] = useState(0);
@@ -31,8 +31,8 @@ export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, 
 
   const grade = (g) => {
     onGrade(phrase, g);
-    // Засчитать день в стрик сразу после первой оценки — даже если занятие
-    // не доведено до конца (иначе частичные занятия не попадают в activity)
+    // Count the day toward the streak right after the first grade — even if the session
+    // is not finished (otherwise partial sessions never make it into activity)
     if (!counted.current) {
       counted.current = true;
       onFinish();
@@ -45,8 +45,8 @@ export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, 
     else setIdx(idx + 1);
   };
 
-  // Скрыть фразу из изучения прямо с карточки: убрать из очереди (и её повторы
-  // от «Не помню») и перейти дальше, без оценки
+  // Hide a phrase from learning right from the card: remove it from the queue (and its
+  // "Forgot" repeats) and move on, without grading
   const hide = (e) => {
     e.stopPropagation();
     onHide(phrase);
@@ -58,7 +58,7 @@ export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, 
   };
 
   const hideBtn = onHide && (
-    <div className="press-sm" onClick={hide} title="Скрыть из изучения" style={{
+    <div className="press-sm" onClick={hide} title="Hide from learning" style={{
       position: 'absolute', top: 8, right: 8, width: 40, height: 40, zIndex: 1,
       display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: 0.55,
     }}>
@@ -93,14 +93,14 @@ export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, 
             textAlign: 'center', boxSizing: 'border-box',
           }}>
             {hideBtn}
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: C.faint }}>ПЕРЕВЕДИ НА ТАЙСКИЙ</div>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, color: C.faint }}>TRANSLATE INTO THAI</div>
             <div style={{ fontSize: 31, fontWeight: 800, marginTop: 16, letterSpacing: -0.5 }}>{phrase.ru}</div>
             <div style={{
               position: 'absolute', bottom: 26, left: 0, right: 0, display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: 7, color: C.faint, fontSize: 12, fontWeight: 600,
             }}>
               <Icon d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6zM15 12a3 3 0 11-6 0 3 3 0 016 0z" size={14} color={C.faint} />
-              нажми — увидишь ответ
+              tap to see the answer
             </div>
           </div>
         </div>
@@ -152,15 +152,15 @@ export default function Lesson({ title, initialQueue, noVoice, onGrade, onHide, 
           <div style={{ width: 60, height: 60, borderRadius: 999, background: C.lime, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon d="M5 12.5l4.5 4.5L19 7.5" size={26} width={2.2} />
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginTop: 18 }}>Занятие закончено</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginTop: 18 }}>Session complete</div>
           <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 6, lineHeight: 1.5 }}>
-            Все фразы пройдены — они вернутся<br />по расписанию повторений
+            All phrases done — they will come back<br />on the review schedule
           </div>
           <div className="press" onClick={onExit} style={{
             background: C.lime, color: C.text, borderRadius: 999, height: 52, width: '100%', display: 'flex',
             alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, marginTop: 32,
           }}>
-            Готово
+            Done
           </div>
         </div>
       )}

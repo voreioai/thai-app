@@ -1,21 +1,21 @@
-# Ручная установка (без Claude)
+# Manual setup (without Claude)
 
-1. Установи зависимости: `npm install`.
-2. Создай проект на https://supabase.com.
-3. В **SQL Editor** выполни по очереди:
+1. Install dependencies: `npm install`.
+2. Create a project at https://supabase.com.
+3. In the **SQL Editor**, run in order:
    - `supabase/schema.sql`
    - `supabase/seed.sql`
-4. В **Project Settings → API** возьми Project URL и anon (publishable) ключ.
-5. Скопируй `.env.example` в `.env.local` и заполни:
+4. In **Project Settings → API**, grab the Project URL and the anon (publishable) key.
+5. Copy `.env.example` to `.env.local` and fill it in:
    ```
    NEXT_PUBLIC_SUPABASE_URL=...
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-   NEXT_PUBLIC_USER_NAME=ТвоёИмя
-   NEXT_PUBLIC_USER_GENDER=female   # или male
+   NEXT_PUBLIC_USER_NAME=YourName
+   NEXT_PUBLIC_USER_GENDER=female   # or male
    ```
-6. Запусти: `npm run dev` → http://localhost:3000.
-7. Деплой (по желанию): импортируй репозиторий в Vercel, задай те же 4
-   переменные окружения, задеплой.
+6. Run: `npm run dev` → http://localhost:3000.
+7. Deploy (optional): import the repository into Vercel, set the same 4
+   environment variables, deploy.
 
-Intro-фразы «Меня зовут…», «Я из…» в базовый seed не входят — добавь их сам
-через экран «➕ Добавить фразу» или попроси Claude.
+Intro phrases like "My name is…" and "I'm from…" are not in the base seed — add them
+yourself via the "➕ Add phrase" screen or ask Claude.

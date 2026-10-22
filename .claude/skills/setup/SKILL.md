@@ -1,65 +1,65 @@
 ---
 name: setup
-description: Установка Thai Trainer под пользователя — опрос (имя, пол, страна, темы), создание базы Supabase, наполнение контентом, запись .env.local, запуск и деплой. Использовать при первом запуске или когда нет .env.local.
+description: Set up Thai Trainer for the user — interview (name, gender, country, topics), create the Supabase database, fill it with content, write .env.local, launch and deploy. Use on first run or when there is no .env.local.
 ---
 
-# Установка Thai Trainer
+# Thai Trainer setup
 
-Ты ведёшь пользователя через установку как разговор. Не вываливай всё сразу —
-иди по шагам, задавай по одному вопросу, показывай прогресс.
+You guide the user through setup as a conversation. Don't dump everything at once —
+go step by step, ask one question at a time, show progress.
 
-## Шаг 0. Роадмап
-Покажи план и оценку (~15 минут). Что понадобится: аккаунт Supabase и
-подключённый Supabase-коннектор к Claude; по желанию — Vercel для деплоя.
-Спроси, готов ли начать.
+## Step 0. Roadmap
+Show the plan and an estimate (~15 minutes). What's needed: a Supabase account and
+a Supabase connector connected to Claude; optionally Vercel for deployment.
+Ask whether they're ready to start.
 
-## Шаг 1. Опрос (по одному вопросу)
-1. Имя (как обращаться, пойдёт в приветствие «สวัสดี …»).
-2. Пол — женский или мужской (определяет вежливую частицу ค่ะ/คะ vs ครับ).
-3. Страна (для фразы «я из …»).
-4. Покажи 7 тем: База, Числа, Кофейня, Кафе, Магазин, Рынок, Массаж.
-   Спроси: все подходят? Что-то добавить?
+## Step 1. Interview (one question at a time)
+1. Name (how to address them, goes into the greeting "สวัสดี …").
+2. Gender — female or male (determines the polite particle ค่ะ/คะ vs ครับ).
+3. Country (for the phrase "I'm from …").
+4. Show the 7 topics: Basics, Numbers, Coffee shop, Café, Shop, Market, Massage.
+   Ask: are they all a good fit? Anything to add?
 
-## Шаг 2. База Supabase
-- Если коннектор подключён: создай новый проект (или предложи существующий),
-  выполни `supabase/schema.sql`, затем `supabase/seed.sql`.
-- Если коннектора нет — отправь к `docs/manual-setup.md` и помоги по шагам.
-- Забери Project URL и anon (publishable) ключ.
+## Step 2. Supabase database
+- If the connector is connected: create a new project (or offer an existing one),
+  run `supabase/schema.sql`, then `supabase/seed.sql`.
+- If there's no connector — point them to `docs/manual-setup.md` and help step by step.
+- Grab the Project URL and the anon (publishable) key.
 
-## Шаг 3. Личные intro-фразы
-Сгенерируй под пользователя и вставь в `phrases` с `source='chat'`, `deck='base'`,
-`hidden=false` (частицу подставь по полу: жен. ค่ะ, муж. ครับ):
-- «Меня зовут {имя}» → `ฉันชื่อ{имя}{частица}`
-- «Я из {страны}» → `มาจาก{страна}{частица}`
-Транскрипцию дай с тонами. Имя/страну по-тайски — транслитерируй аккуратно.
+## Step 3. Personal intro phrases
+Generate them for the user and insert into `phrases` with `source='chat'`, `deck='base'`,
+`hidden=false` (add the particle by gender: female ค่ะ, male ครับ):
+- "My name is {name}" → `ฉันชื่อ{name}{particle}`
+- "I'm from {country}" → `มาจาก{country}{particle}`
+Give the transcription with tones. Transliterate the name/country into Thai carefully.
 
-## Шаг 4. Дополнительные темы
-Если пользователь просил темы сверх семи — добавь выверенные фразы с
-`source='chat'`, строгий тайский с тонами и нужной частицей, без выдумок.
+## Step 4. Extra topics
+If the user asked for topics beyond the seven — add hand-checked phrases with
+`source='chat'`, strict Thai with tones and the right particle, nothing made up.
 
-## Шаг 5. .env.local
-Создай `.env.local` (см. `.env.example`):
+## Step 5. .env.local
+Create `.env.local` (see `.env.example`):
 ```
 NEXT_PUBLIC_SUPABASE_URL=<url>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
-NEXT_PUBLIC_USER_NAME=<имя>
+NEXT_PUBLIC_USER_NAME=<name>
 NEXT_PUBLIC_USER_GENDER=<female|male>
 ```
 
-## Шаг 6. Запуск
+## Step 6. Launch
 ```
 npm install
 npm run dev
 ```
-Открой http://localhost:3000 и убедись, что приветствие с именем, фразы грузятся.
+Open http://localhost:3000 and make sure the greeting shows the name and phrases load.
 
-## Шаг 7. Деплой (по желанию)
-Предложи Vercel: импорт репозитория, те же 4 переменные окружения в настройках
-проекта, деплой. Дай ссылку на прод.
+## Step 7. Deploy (optional)
+Offer Vercel: import the repository, the same 4 environment variables in the project
+settings, deploy. Give them the production link.
 
-## Заметки
-- Частица в UI подставляется автоматически (`lib/profile.js`) — в базе всегда
-  женский вариант, не дублируй мужской.
-- Реплики тайцев (THEY_SAY, роли `thai` в диалогах) частицу не меняют.
-- 12 видео в `lib/data.js → VIDEOS` — стартовый тайский плейлист; его можно
-  заменить, попросив Claude (см. `scripts/fetch_transcripts.py`).
+## Notes
+- The particle is substituted automatically in the UI (`lib/profile.js`) — the database
+  always holds the feminine variant, don't duplicate the masculine one.
+- Thai replies (THEY_SAY, the `thai` roles in dialogues) don't change the particle.
+- The 12 videos in `lib/data.js → VIDEOS` are the starter Thai playlist; it can be
+  replaced by asking Claude (see `scripts/fetch_transcripts.py`).

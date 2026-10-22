@@ -3,14 +3,12 @@
 import { useState } from 'react';
 import { C, Icon, SpeakBtn } from '@/components/ui';
 
-const wordForm = (n) =>
-  n % 10 === 1 && n % 100 !== 11 ? 'слово'
-    : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'слова' : 'слов';
+const wordForm = (n) => (n === 1 ? 'word' : 'words');
 
-// Попап после просмотра видео. Слова добавляются в изучение, НО можно снять галочку
-// с ненужных — они не попадут в изучение. Кнопка «Начать сейчас» открывает занятие
-// по выбранным словам; крестик просто закрывает (выбранные всё равно добавлены).
-// onStart(excludedIds) и onClose(excludedIds) сообщают родителю, какие слова исключить.
+// Popup shown after watching a video. The words are added to learning, BUT you can uncheck
+// the ones you don't need — they won't be added. The "Start now" button opens a session
+// with the selected words; the close button just dismisses it (the selected ones are still added).
+// onStart(excludedIds) and onClose(excludedIds) tell the parent which words to exclude.
 export default function VideoWords({ videoNo, title, phrases, onStart, onClose }) {
   const [excluded, setExcluded] = useState(() => new Set());
 
@@ -34,10 +32,10 @@ export default function VideoWords({ videoNo, title, phrases, onStart, onClose }
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 20 }}>🎬</span>
-              <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>Новые слова</div>
+              <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>New words</div>
             </div>
             <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, lineHeight: 1.45, marginTop: 6 }}>
-              Из видео {videoNo}{title ? ` — ${title}` : ''}. Сними галочку с тех, что не нужны.
+              From video {videoNo}{title ? ` — ${title}` : ''}. Uncheck the ones you don't need.
             </div>
           </div>
           <div className="press-sm" onClick={() => onClose(excludedIds())} style={{
@@ -62,7 +60,7 @@ export default function VideoWords({ videoNo, title, phrases, onStart, onClose }
                 <div
                   className="press-sm"
                   onClick={() => toggle(p.id)}
-                  title={off ? 'Добавить обратно' : 'Не добавлять'}
+                  title={off ? 'Add back' : 'Do not add'}
                   style={{
                     width: 30, height: 30, borderRadius: 999, flexShrink: 0, cursor: 'pointer',
                     background: off ? '#fff' : C.lime, border: off ? `1.5px solid ${C.faint}` : 'none',
@@ -85,12 +83,12 @@ export default function VideoWords({ videoNo, title, phrases, onStart, onClose }
             opacity: included > 0 ? 1 : 0.45, pointerEvents: included > 0 ? 'auto' : 'none',
           }}
         >
-          Начать сейчас
+          Start now
         </div>
         <div style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: C.faint, marginTop: 10, flexShrink: 0 }}>
           {included > 0
-            ? `${included} ${wordForm(included)} — в «Учить новое»${excluded.size ? `, ${excluded.size} убрано` : ''}`
-            : 'Все слова убраны — ничего не добавится'}
+            ? `${included} ${wordForm(included)} — added to "Learn new"${excluded.size ? `, ${excluded.size} removed` : ''}`
+            : 'All words removed — nothing will be added'}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-// Минимальный сервис-воркер: офлайн-кэш оболочки, network-first для страниц,
-// cache-first для статики. Данные Supabase не кэшируем.
+// Minimal service worker: offline cache of the app shell, network-first for pages,
+// cache-first for static assets. Supabase data is not cached.
 const CACHE = 'thai-trainer-v1';
 
 self.addEventListener('install', (e) => {

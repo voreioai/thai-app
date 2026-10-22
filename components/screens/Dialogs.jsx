@@ -9,9 +9,9 @@ import { applyGender } from '@/lib/profile';
 export default function Dialogs({ onOpen }) {
   return (
     <div className="fade-in">
-      <ScreenTitle>Диалоги</ScreenTitle>
+      <ScreenTitle>Dialogues</ScreenTitle>
       <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>
-        Пройди диалог вслух: реплики тайца озвучиваются, свои — говоришь сама, потом проверяешь.
+        Go through the dialogue out loud: the Thai lines are spoken for you, your own lines you say yourself, then check.
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
         {DIALOGS.map((d) => (
@@ -34,8 +34,8 @@ export default function Dialogs({ onOpen }) {
   );
 }
 
-// Пошаговый плеер диалога: тайские реплики озвучиваются автоматически,
-// свои реплики — RU, сказать вслух, потом «Показать ответ»
+// Step-by-step dialogue player: the Thai lines are spoken automatically,
+// your lines — the meaning is shown, say it out loud, then "Show answer"
 export function DialogPlayer({ dialogId, noVoice, onBack }) {
   const dialog = DIALOGS.find((d) => d.id === dialogId);
   const [step, setStep] = useState(0);
@@ -63,7 +63,7 @@ export function DialogPlayer({ dialogId, noVoice, onBack }) {
         <div>
           <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>{dialog.name}</div>
           <div style={{ fontSize: 12.5, fontWeight: 500, color: C.sub, marginTop: 1 }}>
-            шаг {step + 1} из {dialog.steps.length}
+            step {step + 1} of {dialog.steps.length}
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function DialogPlayer({ dialogId, noVoice, onBack }) {
             <div key={i} style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <div style={{ background: '#17181A', borderRadius: '18px 18px 6px 18px', padding: '12px 15px', maxWidth: '88%' }}>
                 <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, color: 'rgba(255,255,255,0.45)' }}>
-                  СКАЖИ ПО-ТАЙСКИ
+                  SAY IT IN THAI
                 </div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginTop: 4 }}>{s.ru}</div>
                 {open ? (
@@ -114,7 +114,7 @@ export function DialogPlayer({ dialogId, noVoice, onBack }) {
                     alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800,
                     marginTop: 10, padding: '0 16px',
                   }}>
-                    Показать ответ
+                    Show answer
                   </div>
                 )}
               </div>
@@ -128,7 +128,7 @@ export function DialogPlayer({ dialogId, noVoice, onBack }) {
           background: '#17181A', color: '#fff', borderRadius: 999, height: 50, display: 'flex',
           alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, marginTop: 8,
         }}>
-          Дальше
+          Next
         </div>
       )}
       {canNext && isLast && (
@@ -136,7 +136,7 @@ export function DialogPlayer({ dialogId, noVoice, onBack }) {
           background: C.lime, color: C.text, borderRadius: 999, height: 50, display: 'flex',
           alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, marginTop: 8,
         }}>
-          Диалог пройден 🎉
+          Dialogue complete 🎉
         </div>
       )}
     </div>
