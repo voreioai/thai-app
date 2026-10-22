@@ -5,6 +5,10 @@ cheat sheets, mini-dialogues, tones, and words from videos. The content is
 hand-checked and **bundled with the app** — there is no database and nothing
 to set up. Your progress is saved in your browser.
 
+## Screenshots
+
+![Thai Trainer — Today, Topics, Tones, Videos and Progress screens](docs/screenshots/overview.png)
+
 ## Key value
 - Ready, hand-checked content (≈220 phrases across 7 topics, dialogues, tones).
 - Zero setup: no backend, no accounts, no API keys.
