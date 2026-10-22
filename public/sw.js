@@ -1,5 +1,5 @@
 // Minimal service worker: offline cache of the app shell, network-first for pages,
-// cache-first for static assets. Supabase data is not cached.
+// cache-first for static assets. All content is bundled; progress lives in localStorage.
 const CACHE = 'thai-trainer-v1';
 
 self.addEventListener('install', (e) => {

@@ -28,7 +28,7 @@ export default function AddSheet({ onClose, onAdd }) {
       await onAdd({ ru: ru.trim(), th: th.trim(), tr: tr.trim(), deck });
       onClose();
     } catch (e) {
-      setError('Could not save — check your connection and try again');
+      setError('Could not save — try again');
       setSaving(false);
     }
   };

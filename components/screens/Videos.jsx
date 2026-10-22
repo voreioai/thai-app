@@ -1,26 +1,24 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import * as store from '@/lib/store';
 import { C, Icon, ScreenTitle } from '@/components/ui';
 import { VIDEOS } from '@/lib/data';
 
 // "Videos" tab: clips from a YouTube channel, in order. "Watch" opens YouTube
-// and marks the video as watched. The marks are stored in Supabase (table watched_videos),
-// so they survive a reload and sync across devices.
+// and marks the video as watched. The marks are stored in the browser (lib/store.js),
+// so they survive a reload on this device.
 export default function Videos() {
   const [watched, setWatched] = useState([]);
 
   useEffect(() => {
-    supabase.from('watched_videos').select('video_id').then(({ data }) => {
-      if (data) setWatched(data.map((r) => r.video_id));
-    });
+    setWatched(store.getWatched().map((r) => r.video_id));
   }, []);
 
   const markWatched = (id) => {
     if (watched.includes(id)) return;
     setWatched((prev) => (prev.includes(id) ? prev : [...prev, id]));
-    supabase.from('watched_videos').upsert({ video_id: id }).then(() => {});
+    store.markWatched(id);
   };
 
   return (

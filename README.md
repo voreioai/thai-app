@@ -1,35 +1,47 @@
 # Thai Trainer
 
-A personal spoken-Thai trainer. Mobile-first PWA: spaced repetition,
-"I'm now at…" cheat sheets, mini-dialogues, tones, words from videos.
-The content is hand-checked, and setup runs **as a conversation with Claude** — it
-personalizes the app for you and fills the database.
+A spoken-Thai trainer. Mobile-first PWA: spaced repetition, "I'm now at…"
+cheat sheets, mini-dialogues, tones, and words from videos. The content is
+hand-checked and **bundled with the app** — there is no database and nothing
+to set up. Your progress is saved in your browser.
 
 ## Key value
 - Ready, hand-checked content (≈220 phrases across 7 topics, dialogues, tones).
-- Personalization: your name, gender (polite particle), your topics.
-- Adding phrases and words from videos through a chat with Claude (Supabase connector).
+- Zero setup: no backend, no accounts, no API keys.
+- Deploys to Vercel (or any static Next.js host) as-is.
 
-## Quick start (via Claude Code)
-1. Fork/clone the repository, open the folder in Claude Code.
-2. Connect the Supabase connector to Claude.
-3. Say: **"set up"** — the `/setup` skill runs: interview → database → content →
-   `.env.local` → launch. Optionally deploys to Vercel.
+## Deploy to Vercel
+1. Fork this repository.
+2. In Vercel: **New Project → Import** your fork. Framework is detected as Next.js.
+3. Deploy. That's it — no environment variables needed.
 
-Without Claude: see [docs/manual-setup.md](docs/manual-setup.md).
+Live demo: <https://thaiapp.zerobrand.xyz>
 
-## Stack
-Next.js (App Router) + PWA → Vercel · Supabase (directly from the client) ·
-speech via the Web Speech API (`th-TH`).
+## Run locally
+```bash
+npm install
+npm run dev     # http://localhost:3000
+npm test        # unit tests (lib/profile.js)
+```
+
+## How it works
+- **Content** is bundled in `lib/content.js` (generated from a phrase list).
+  The feminine particle ค่ะ/คะ is stored; set `NEXT_PUBLIC_USER_GENDER=male`
+  to switch the UI to ครับ (see `.env.example`). Everything is optional.
+- **Progress** (reviews, streak, hidden words, watched videos, phrases you add)
+  lives in the browser via `localStorage` (`lib/store.js`). It stays on the
+  device — clearing site data resets it.
 
 ## Structure
-- `app/page.jsx` — shell: tabs, data loading, SRS.
+- `app/page.jsx` — shell: tabs, loading, SRS.
 - `components/screens/` — screens (Today, "I'm now at…", Topics, Lesson,
   Dialogues, Tones, Progress, Videos).
+- `lib/content.js` — bundled phrases (the content).
+- `lib/store.js` — browser storage (progress, streak, hidden, watched, custom).
 - `lib/srs.js` — spaced repetition and streak.
-- `lib/profile.js` — name and polite particle by gender.
+- `lib/profile.js` — polite particle by gender.
 - `lib/data.js` — deck presentation, Thai replies, dialogues, tones, videos.
-- `supabase/` — `schema.sql` and `seed.sql`.
+- `scripts/gen-content.mjs` — regenerate `lib/content.js` from a phrase list.
 
 ## Roadmap
 See [docs/roadmap.md](docs/roadmap.md).

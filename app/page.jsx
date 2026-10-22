@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import * as store from '@/lib/store';
 import { todayStr, nextBox, dueDateFor, calcStreak, NEW_PER_DAY, LEARNED_BOX } from '@/lib/srs';
 import { checkThaiVoice } from '@/lib/tts';
 import { DECK_META, VIDEOS } from '@/lib/data';
@@ -31,33 +31,17 @@ export default function App() {
   // Watched videos: [{ video_id, words_added, watched_at }] — for the "New words from a video" popup
   const [watchedVideos, setWatchedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
   const [noVoice, setNoVoice] = useState(false);
   // Words pushed from the home screen into the "Learn new" queue (➕) — survive a reload
   const [pinned, setPinned] = useState([]);
 
-  const load = async () => {
-    setLoading(true);
-    setLoadError(false);
-    try {
-      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 12000));
-      const [ph, rv, ac, wv] = await Promise.race([
-        Promise.all([
-          supabase.from('phrases').select('*').order('created_at'),
-          supabase.from('reviews').select('*'),
-          supabase.from('activity').select('*'),
-          supabase.from('watched_videos').select('*'),
-        ]),
-        timeout,
-      ]);
-      if (ph.error || rv.error || ac.error || wv.error) throw ph.error || rv.error || ac.error || wv.error;
-      setPhrases((ph.data || []).map(genderPhrase));
-      setReviews(Object.fromEntries(rv.data.map((r) => [r.phrase_id, r])));
-      setActivity(ac.data);
-      setWatchedVideos(wv.data || []);
-    } catch (e) {
-      setLoadError(true);
-    }
+  // Everything comes from the browser (lib/store.js): bundled content + localStorage.
+  const load = () => {
+    const { phrases, reviews, activity, watchedVideos } = store.loadAll();
+    setPhrases(phrases.map(genderPhrase));
+    setReviews(reviews);
+    setActivity(activity);
+    setWatchedVideos(watchedVideos);
     setLoading(false);
   };
 
@@ -132,10 +116,8 @@ export default function App() {
     setPhrases((prev) => prev.map((p) => (ids.includes(p.id) ? { ...p, hidden: false } : p)));
     if (ids.length) savePinned([...new Set([...pinned, ...ids])]);
     setWatchedVideos((prev) => prev.map((w) => (w.video_id === videoId ? { ...w, words_added: true } : w)));
-    await Promise.all([
-      ids.length ? supabase.from('phrases').update({ hidden: false }).in('id', ids) : Promise.resolve(),
-      supabase.from('watched_videos').update({ words_added: true }).eq('video_id', videoId),
-    ]);
+    if (ids.length) store.setHiddenMany(ids, false);
+    store.setWordsAdded(videoId);
   };
 
   const startVideoLesson = (videoId, excludedIds = []) => {
@@ -146,14 +128,14 @@ export default function App() {
   };
 
   // ✓ on the home screen: "already know" — mark as learned at once (box 4); tap again to undo and return it to new
-  const toggleLearned = async (phrase) => {
+  const toggleLearned = (phrase) => {
     if ((reviews[phrase.id]?.box ?? -1) >= LEARNED_BOX) {
       setReviews((prev) => {
         const next = { ...prev };
         delete next[phrase.id];
         return next;
       });
-      await supabase.from('reviews').delete().eq('phrase_id', phrase.id);
+      store.deleteReview(phrase.id);
     } else {
       const row = {
         phrase_id: phrase.id,
@@ -163,12 +145,12 @@ export default function App() {
       };
       setReviews((prev) => ({ ...prev, [phrase.id]: row }));
       if (pinned.includes(phrase.id)) unpin(phrase.id);
-      await supabase.from('reviews').upsert(row).then(() => {});
+      store.saveReview(row);
     }
   };
 
-  // Grade a card: update box/due_date in reviews (upsert)
-  const gradePhrase = async (phrase, grade) => {
+  // Grade a card: update box/due_date in reviews
+  const gradePhrase = (phrase, grade) => {
     const box = nextBox(reviews[phrase.id]?.box ?? 0, grade);
     const row = {
       phrase_id: phrase.id,
@@ -178,11 +160,11 @@ export default function App() {
     };
     setReviews((prev) => ({ ...prev, [phrase.id]: row }));
     if (pinned.includes(phrase.id)) unpin(phrase.id);
-    await supabase.from('reviews').upsert(row).then(() => {});
+    store.saveReview(row);
   };
 
-  // Finishing a session: upsert into activity by day (for the streak)
-  const finishSession = async (mode) => {
+  // Finishing a session: record the day in activity (for the streak)
+  const finishSession = (mode) => {
     const existing = activity.find((a) => a.day === today);
     const row = {
       day: today,
@@ -190,13 +172,13 @@ export default function App() {
       did_new: (existing?.did_new ?? false) || mode === 'new',
     };
     setActivity((prev) => [...prev.filter((a) => a.day !== today), row]);
-    await supabase.from('activity').upsert(row).then(() => {});
+    store.upsertActivity(row);
   };
 
-  const toggleHidden = async (phrase) => {
+  const toggleHidden = (phrase) => {
     const hidden = !phrase.hidden;
     setPhrases((prev) => prev.map((p) => (p.id === phrase.id ? { ...p, hidden } : p)));
-    await supabase.from('phrases').update({ hidden }).eq('id', phrase.id);
+    store.setHidden(phrase.id, hidden);
   };
 
   // Hide a word right from the card in "Learn new" (eye icon) — you can bring it back in the deck
@@ -205,14 +187,9 @@ export default function App() {
     toggleHidden(phrase);
   };
 
-  const addPhrase = async ({ ru, th, tr, deck }) => {
-    const { data, error } = await supabase
-      .from('phrases')
-      .insert({ ru, th, tr, deck, source: 'manual' })
-      .select()
-      .single();
-    if (error) throw error;
-    setPhrases((prev) => [...prev, genderPhrase(data)]);
+  const addPhrase = ({ ru, th, tr, deck }) => {
+    const phrase = store.addCustomPhrase({ ru, th, tr, deck });
+    setPhrases((prev) => [...prev, genderPhrase(phrase)]);
   };
 
   // Shuffle phrases so similar words don't run back-to-back and the order doesn't hint at the answer
@@ -273,16 +250,6 @@ export default function App() {
       return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: C.faint, fontSize: 14, fontWeight: 600 }}>
           Loading phrases…
-        </div>
-      );
-    }
-    if (loadError) {
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
-          <div style={{ color: C.sub, fontSize: 14, fontWeight: 600, textAlign: 'center' }}>Couldn't load phrases.<br />Check your connection.</div>
-          <div className="press" onClick={load} style={{ background: '#17181A', color: '#fff', borderRadius: 999, padding: '13px 28px', fontSize: 14, fontWeight: 800 }}>
-            Try again
-          </div>
         </div>
       );
     }
@@ -354,7 +321,7 @@ export default function App() {
         </div>
       )}
       {addOpen && <AddSheet onClose={() => setAddOpen(false)} onAdd={addPhrase} />}
-      {!loading && !loadError && !inLesson && !addOpen && pendingVideo && (
+      {!loading && !inLesson && !addOpen && pendingVideo && (
         <VideoWords
           videoNo={VIDEOS.findIndex((v) => v.id === pendingVideo.video_id) + 1}
           title={VIDEOS.find((v) => v.id === pendingVideo.video_id)?.title}
