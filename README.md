@@ -1,38 +1,38 @@
 # Thai Trainer
 
-Персональный тренажёр разговорного тайского. Мобайл-первый PWA: интервальное
-повторение, шпаргалки «Я сейчас в…», мини-диалоги, тоны, слова из видео.
-Контент выверен вручную, а установка идёт **как разговор с Claude** — он
-персонализирует приложение под тебя и наполняет базу.
+A personal spoken-Thai trainer. Mobile-first PWA: spaced repetition,
+"I'm now at…" cheat sheets, mini-dialogues, tones, words from videos.
+The content is hand-checked, and setup runs **as a conversation with Claude** — it
+personalizes the app for you and fills the database.
 
-## Ключевая ценность
-- Готовый выверенный контент (≈220 фраз в 7 темах, диалоги, тоны).
-- Персонализация: имя, пол (вежливая частица), твои темы.
-- Пополнение фраз и слов из видео через чат с Claude (Supabase-коннектор).
+## Key value
+- Ready, hand-checked content (≈220 phrases across 7 topics, dialogues, tones).
+- Personalization: your name, gender (polite particle), your topics.
+- Adding phrases and words from videos through a chat with Claude (Supabase connector).
 
-## Быстрый старт (через Claude Code)
-1. Форкни/клонируй репозиторий, открой папку в Claude Code.
-2. Подключи Supabase-коннектор к Claude.
-3. Скажи: **«настрой»** — сработает скилл `/setup`: опрос → база → контент →
-   `.env.local` → запуск. По желанию задеплоит на Vercel.
+## Quick start (via Claude Code)
+1. Fork/clone the repository, open the folder in Claude Code.
+2. Connect the Supabase connector to Claude.
+3. Say: **"set up"** — the `/setup` skill runs: interview → database → content →
+   `.env.local` → launch. Optionally deploys to Vercel.
 
-Без Claude: см. [docs/manual-setup.md](docs/manual-setup.md).
+Without Claude: see [docs/manual-setup.md](docs/manual-setup.md).
 
-## Стек
-Next.js (App Router) + PWA → Vercel · Supabase (напрямую с клиента) ·
-озвучка Web Speech API (`th-TH`).
+## Stack
+Next.js (App Router) + PWA → Vercel · Supabase (directly from the client) ·
+speech via the Web Speech API (`th-TH`).
 
-## Структура
-- `app/page.jsx` — оболочка: вкладки, загрузка данных, SRS.
-- `components/screens/` — экраны (Сегодня, «Я сейчас в…», Темы, Занятие,
-  Диалоги, Тоны, Прогресс, Видео).
-- `lib/srs.js` — интервальное повторение и стрик.
-- `lib/profile.js` — имя и вежливая частица по полу.
-- `lib/data.js` — оформление колод, реплики тайцев, диалоги, тоны, видео.
-- `supabase/` — `schema.sql` и `seed.sql`.
+## Structure
+- `app/page.jsx` — shell: tabs, data loading, SRS.
+- `components/screens/` — screens (Today, "I'm now at…", Topics, Lesson,
+  Dialogues, Tones, Progress, Videos).
+- `lib/srs.js` — spaced repetition and streak.
+- `lib/profile.js` — name and polite particle by gender.
+- `lib/data.js` — deck presentation, Thai replies, dialogues, tones, videos.
+- `supabase/` — `schema.sql` and `seed.sql`.
 
-## Роадмап
-См. [docs/roadmap.md](docs/roadmap.md).
+## Roadmap
+See [docs/roadmap.md](docs/roadmap.md).
 
-## Лицензия
+## License
 MIT.

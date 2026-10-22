@@ -5,7 +5,7 @@ import { PLACES, missionOfToday } from '@/lib/data';
 import { plural, NEW_PER_DAY, LEARNED_BOX } from '@/lib/srs';
 import { USER_NAME, applyGender } from '@/lib/profile';
 
-// Круглая кнопка-действие у слова: ➕ «выучить сегодня» / ✓ «уже знаю»
+// Round action button next to a word: ➕ "learn today" / ✓ "already know"
 function WordActionBtn({ active, d, onClick }) {
   return (
     <div className="press-sm" onClick={onClick} style={{
@@ -29,7 +29,7 @@ export default function Home({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div className="thai" style={{ fontSize: 26, fontWeight: 700, lineHeight: 1.1 }}>สวัสดี {USER_NAME}</div>
-          <div style={{ fontSize: 12.5, fontWeight: 600, color: C.sub, marginTop: 3 }}>sà-wàt-dii khâ · Савади</div>
+          <div style={{ fontSize: 12.5, fontWeight: 600, color: C.sub, marginTop: 3 }}>sà-wàt-dii khâ · Sawasdee</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', borderRadius: 999, padding: '8px 13px', flexShrink: 0 }}>
           <FlameIcon />
@@ -38,7 +38,7 @@ export default function Home({
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 18, overflowX: 'auto', margin: '18px -20px 0', padding: '0 20px' }}>
-        <span style={{ fontSize: 12, fontWeight: 600, color: C.faint, flexShrink: 0 }}>📍 Я сейчас в:</span>
+        <span style={{ fontSize: 12, fontWeight: 600, color: C.faint, flexShrink: 0 }}>📍 I am now at:</span>
         {PLACES.map((p) => (
           <span key={p.deck} className="press" onClick={() => onPlace(p.deck)}
             style={{ background: '#fff', borderRadius: 999, padding: '7px 14px', fontSize: 13, fontWeight: 600, flexShrink: 0 }}>
@@ -48,18 +48,18 @@ export default function Home({
       </div>
 
       <div style={{ background: '#17181A', borderRadius: 24, padding: '22px 20px 20px', marginTop: 20 }}>
-        <SectionLabel color={C.lime}>СЕГОДНЯ</SectionLabel>
+        <SectionLabel color={C.lime}>TODAY</SectionLabel>
         <div style={{ fontSize: 21, fontWeight: 800, color: '#fff', marginTop: 8 }}>
-          {hasNew ? 'Выучить новое' : 'Всё новое выучено'}
+          {hasNew ? 'Learn something new' : 'All new phrases learned'}
         </div>
         <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>
           {hasNew
-            ? `${newCount} ${plural(newCount, 'новая фраза', 'новые фразы', 'новых фраз')} · до ${NEW_PER_DAY} в день`
-            : 'Новые фразы появятся из чата с Claude'}
+            ? `${newCount} ${plural(newCount, 'new phrase', 'new phrases')} · up to ${NEW_PER_DAY} per day`
+            : 'New phrases will appear from your chat with Claude'}
         </div>
         {chatCount > 0 && (
           <div style={{ fontSize: 13, fontWeight: 700, color: C.lime, marginTop: 6 }}>
-            Новых из чата с Claude: {chatCount}
+            New from chat with Claude: {chatCount}
           </div>
         )}
         {hasNew && (
@@ -67,7 +67,7 @@ export default function Home({
             background: C.lime, color: C.text, borderRadius: 999, height: 50, display: 'flex',
             alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, marginTop: 18,
           }}>
-            Начать занятие
+            Start session
           </div>
         )}
       </div>
@@ -77,11 +77,11 @@ export default function Home({
           <Icon d="M20 12a8 8 0 1 1-2.3-5.6M20 3v4h-4" size={20} width={1.8} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 800 }}>Повторить</div>
+          <div style={{ fontSize: 16, fontWeight: 800 }}>Review</div>
           <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 2 }}>
             {reviewCount > 0
-              ? `${reviewCount} ${plural(reviewCount, 'фраза ждёт', 'фразы ждут', 'фраз ждут')} повторения`
-              : 'Пока нечего повторять 🎉'}
+              ? `${reviewCount} ${plural(reviewCount, 'phrase', 'phrases')} waiting for review`
+              : 'Nothing to review yet 🎉'}
           </div>
         </div>
         {reviewCount > 0 && (
@@ -95,7 +95,7 @@ export default function Home({
       </div>
 
       <div style={{ background: '#fff', borderRadius: 24, padding: 18, marginTop: 12 }}>
-        <SectionLabel>МИССИЯ ДНЯ</SectionLabel>
+        <SectionLabel>MISSION OF THE DAY</SectionLabel>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.35 }}>{mission.text}</div>
@@ -108,9 +108,9 @@ export default function Home({
 
       {recentWords.length > 0 && (
         <div style={{ background: '#fff', borderRadius: 24, padding: 18, marginTop: 12 }}>
-          <SectionLabel>ПОСЛЕДНИЕ СЛОВА</SectionLabel>
+          <SectionLabel>RECENT WORDS</SectionLabel>
           <div style={{ fontSize: 11.5, fontWeight: 600, color: C.faint, marginTop: 6 }}>
-            + в занятие на сегодня · ✓ уже знаю
+            + to today's session · ✓ already know
           </div>
           <div style={{ marginTop: 4 }}>
             {recentWords.map((w, i) => {

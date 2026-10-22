@@ -1,90 +1,90 @@
-# Thai Trainer — приложение для изучения разговорного тайского
+# Thai Trainer — an app for learning spoken Thai
 
-> Нет `.env.local`? Запусти скилл `/setup` — он проведёт опрос и настроит приложение. Ручной путь — в `docs/manual-setup.md`.
+> No `.env.local`? Run the `/setup` skill — it runs an interview and configures the app. The manual path is in `docs/manual-setup.md`.
 
-## Что это
-Персональный тренажёр разговорного тайского (однопользовательский, без авторизации, без мультиюзерности). Мобайл-первый PWA. Язык интерфейса — русский. Имя и пол пользователя задаются в `.env.local` (`NEXT_PUBLIC_USER_NAME`, `NEXT_PUBLIC_USER_GENDER`). В базе фразы хранятся с женской частицей ค่ะ/คะ; для пользователя-мужчины частица подставляется в UI на лету (`lib/profile.js`, `ครับ`). Реплики тайцев (THEY_SAY, роли `thai` в диалогах) частицу не меняют.
+## What it is
+A personal spoken-Thai trainer (single-user, no auth, no multi-user). Mobile-first PWA. UI language — English. The user's name and gender are set in `.env.local` (`NEXT_PUBLIC_USER_NAME`, `NEXT_PUBLIC_USER_GENDER`). In the database, phrases are stored with the feminine particle ค่ะ/คะ; for a male user the particle is substituted in the UI on the fly (`lib/profile.js`, `ครับ`). Thai replies (THEY_SAY, the `thai` roles in dialogues) don't change the particle.
 
-## Стек
-- Next.js (App Router) + PWA, деплой на Vercel
-- Supabase (облако, прямое подключение с клиента, без своего бэкенда)
-- Озвучка: Web Speech API `speechSynthesis`, голос `th-TH` (rate 0.85, «медленно» = 0.6). Если тайский голос не найден — показать подсказку установить Thai TTS.
-- Дизайн: эталон — уже реализованный UI в `app/` + `components/`. Не изобретать свой стиль — держаться существующего вида.
+## Stack
+- Next.js (App Router) + PWA, deployed to Vercel
+- Supabase (cloud, connected directly from the client, no backend of our own)
+- Speech: Web Speech API `speechSynthesis`, voice `th-TH` (rate 0.85, "slow" = 0.6). If no Thai voice is found — show a hint to install a Thai TTS voice.
+- Design: the reference is the already-implemented UI in `app/` + `components/`. Don't invent your own style — stick to the existing look.
 
 ## Supabase
-- URL: заполняется из .env.local (см. .env.example и /setup)
-- Publishable key (можно в клиент): заполняется из .env.local (см. .env.example и /setup)
-- RLS включён, политики allow-all (личное приложение).
+- URL: filled in from .env.local (see .env.example and /setup)
+- Publishable key (can go in the client): filled in from .env.local (see .env.example and /setup)
+- RLS enabled, allow-all policies (personal app).
 
-### Схема (DDL — `supabase/schema.sql`, стартовый контент — `supabase/seed.sql`)
+### Schema (DDL — `supabase/schema.sql`, starter content — `supabase/seed.sql`)
 ```sql
 phrases (
   id uuid pk,
-  ru text, th text, tr text,          -- русский, тайский, транскрипция с тонами
+  ru text, th text, tr text,          -- meaning, Thai, transcription with tones
   deck text check in ('base','num','coffee','resto','shop','market','massage'),
   source text default 'seed',          -- 'seed' | 'chat' | 'manual' | 'video'
-  hidden boolean default false,        -- скрыта из изучения
-  video_id text,                       -- id ролика, если слово из видео (source='video')
+  hidden boolean default false,        -- hidden from learning
+  video_id text,                       -- clip id, if the word is from a video (source='video')
   created_at timestamptz
 )
 reviews (
   phrase_id uuid pk fk->phrases,
-  box int default 0,                   -- ступень интервального повторения
-  due_date date,                       -- когда показать снова
+  box int default 0,                   -- spaced-repetition level
+  due_date date,                       -- when to show it again
   updated_at timestamptz
 )
 activity (
   day date pk,
-  did_review boolean, did_new boolean  -- для подсчёта стрика на сервере
+  did_review boolean, did_new boolean  -- for computing the streak on the server
 )
 watched_videos (
-  video_id text pk,                    -- просмотренные ролики (вкладка «Видео»)
-  words_added boolean default false,   -- слова ролика уже предложены/добавлены (попап показан)
+  video_id text pk,                    -- watched clips (the "Videos" tab)
+  words_added boolean default false,   -- the clip's words have already been offered/added (popup shown)
   watched_at timestamptz
 )
 ```
-Стартовый `seed.sql` — выверенные фразы в 7 колодах. Контент приложение берёт ТОЛЬКО из базы, ничего не хардкодить.
+The starter `seed.sql` holds hand-checked phrases in 7 decks. The app takes content ONLY from the database, nothing hardcoded.
 
-## Логика SRS (перенести как есть)
-- Интервалы по ступеням box: `[0, 1, 2, 4, 7, 15, 30]` дней.
-- Оценки после показа карточки: «Не помню» → box=0, показать снова в этой же сессии; «С трудом» → box не меняется; «Помню» → box+1 (максимум 6). due_date = сегодня + интервал[box].
-- Новые фразы: 6 в день (фразы без записи в reviews, hidden=false).
-- «Повторить» = все фразы с due_date <= сегодня.
-- Карточка: показ RU → тап «Показать ответ» → TH крупно + транскрипция + кнопки 🔊/🐢 (озвучка автоматически при открытии) → три кнопки оценки.
+## SRS logic (carry over as-is)
+- Intervals by box level: `[0, 1, 2, 4, 7, 15, 30]` days.
+- Grades after showing a card: "Forgot" → box=0, show again in this same session; "Hard" → box unchanged; "Got it" → box+1 (max 6). due_date = today + interval[box].
+- New phrases: 6 per day (phrases with no record in reviews, hidden=false).
+- "Review" = all phrases with due_date <= today.
+- Card: show the meaning → tap "Show answer" → TH large + transcription + 🔊/🐢 buttons (speech plays automatically on open) → three grade buttons.
 
-## Стрик
-При завершении сессии писать в `activity` (upsert по дню). Стрик = непрерывная цепочка дней с did_review или did_new, считать из таблицы. Геймификация минимальная: только число дней, без лиг/наград.
+## Streak
+When a session finishes, write to `activity` (upsert by day). The streak = an unbroken chain of days with did_review or did_new, computed from the table. Gamification is minimal: only the number of days, no leagues/rewards.
 
-## Экраны / функции
-1. **Сегодня**: стрик, план (Повторить N / Учить новое 6), ряд кнопок «📍 Я сейчас в…» (кофейня, кафе, магазин, рынок, массаж), миссия дня.
-2. **«Я сейчас в…»** (главная фича): 30-сек шпаргалка перед входом в место — блок «Скажи это» (5 ключевых фраз колоды с 🔊) + блок «Тебе могут сказать» (частые реплики тайцев с переводом и 🔊). Реплики тайцев см. THEY_SAY ниже — можно держать в коде или вынести в таблицу, на усмотрение.
-3. **Колоды**: список колод с прогрессом → внутри список фраз (🔊, скрыть ✗ / вернуть ↩, «Тренировать»), кнопка «➕ Добавить фразу» (ru/th/tr + выбор колоды, insert с source='chat' вручную здесь = 'manual').
-4. **Диалоги**: пошаговые мини-диалоги (кофейня, кафе, 7-Eleven). Реплики тайца озвучиваются автоматически; свои реплики: показан RU, пользователь говорит вслух, потом «Показать ответ» → TH+транскрипция+🔊. ВАЖНО: в диалоге кафе НЕ спрашивать «сколько человек» — в реальных местах так обычно не спрашивают. Диалоги можно держать в коде.
-5. **Тоны**: 5 тонов, у каждого — кнопка 🔊 с примером-словом (в т.ч. классическая пара ใหม่/ไม่/ไม้/หม้าย для демонстрации). Объяснение образами («нисходящий — как строгое Нет!»).
-6. **Прогресс**: в изучении / закреплено (box>=4) / стрик / всего фраз.
+## Screens / features
+1. **Today**: streak, plan (Review N / Learn new 6), a row of "📍 I'm now at…" buttons (coffee shop, café, shop, market, massage), mission of the day.
+2. **"I'm now at…"** (the main feature): a 30-second cheat sheet before entering a place — a "Say this" block (5 key phrases of the deck with 🔊) + a "They might say" block (common Thai replies with translation and 🔊). Thai replies — see THEY_SAY below — can live in code or be moved to a table, your choice.
+3. **Decks**: a list of decks with progress → inside, a list of phrases (🔊, hide ✗ / restore ↩, "Train"), a "➕ Add phrase" button (ru/th/tr + deck choice, insert with source='chat' done manually here = 'manual').
+4. **Dialogues**: step-by-step mini-dialogues (coffee shop, café, 7-Eleven). The Thai's lines are spoken automatically; your lines: the meaning is shown, you say it out loud, then "Show answer" → TH+transcription+🔊. IMPORTANT: in the café dialogue, do NOT ask "how many people" — in real places they usually don't ask that.  Dialogues can live in code.
+5. **Tones**: 5 tones, each with a 🔊 button with an example word (including the classic set ใหม่/ไม่/ไม้/หม้าย for demonstration). Explanation through imagery ("falling — like a stern No!").
+6. **Progress**: in progress / learned (box>=4) / streak / total phrases.
 
-## THEY_SAY (реплики тайцев для «Я сейчас в…»)
-кофейня: ร้อนหรือเย็นคะ (горячий или холодный?), แก้วไหนคะ (какой размер?), หวานปกติไหมคะ (обычная сладость?), ทานที่นี่หรือเอากลับคะ (здесь или с собой?), ...บาทค่ะ (цена)
-кафе: รับอะไรดีคะ (что закажете?), รับน้ำอะไรคะ (что пить?), เผ็ดได้ไหมคะ (острое ок?), รับอะไรเพิ่มไหมคะ (что-то ещё?)
-магазин: รับถุงไหมคะ (пакет?), อุ่นไหมคะ (подогреть?), มีบัตรสมาชิกไหมคะ (карта участника?), จ่ายเงินสดหรือสแกนคะ (наличные или QR?), ทั้งหมด...บาทค่ะ (итого)
-рынок: เอากี่โลคะ (сколько кило?), เอาอะไรอีกไหมคะ (что-то ещё?)
-массаж: นวดอะไรดีคะ (какой массаж?), กี่ชั่วโมงคะ (сколько часов?), หนักไหมคะ (по силе ок?), เจ็บไหมคะ (больно?), เปลี่ยนชุดค่ะ (переоденьтесь)
+## THEY_SAY (Thai replies for "I'm now at…")
+coffee shop: ร้อนหรือเย็นคะ (hot or cold?), แก้วไหนคะ (which size?), หวานปกติไหมคะ (normal sweetness?), ทานที่นี่หรือเอากลับคะ (for here or to go?), ...บาทค่ะ (price)
+café: รับอะไรดีคะ (what would you like?), รับน้ำอะไรคะ (what to drink?), เผ็ดได้ไหมคะ (spicy okay?), รับอะไรเพิ่มไหมคะ (anything else?)
+shop: รับถุงไหมคะ (a bag?), อุ่นไหมคะ (heat it up?), มีบัตรสมาชิกไหมคะ (membership card?), จ่ายเงินสดหรือสแกนคะ (cash or QR?), ทั้งหมด...บาทค่ะ (total)
+market: เอากี่โลคะ (how many kilos?), เอาอะไรอีกไหมคะ (anything else?)
+massage: นวดอะไรดีคะ (which massage?), กี่ชั่วโมงคะ (how many hours?), หนักไหมคะ (pressure okay?), เจ็บไหมคะ (does it hurt?), เปลี่ยนชุดค่ะ (please change clothes)
 
-## Пайплайн пополнения
-Фразы добавляются в базу из чатов пользователя с Claude (Supabase-коннектор) с source='chat'. Приложение должно просто показывать их как новые — никакой специальной логики не нужно, но на «Сегодня» можно показать бейдж «+N новых из чата», если появились фразы с source='chat', которых нет в reviews.
+## Content pipeline
+Phrases are added to the database from the user's chats with Claude (Supabase connector) with source='chat'. The app should simply show them as new — no special logic needed, but on "Today" you can show a "+N new from chat" badge if phrases with source='chat' that aren't in reviews appear.
 
-## Слова из видео (source='video')
-После просмотра ролика его слова всплывают попапом и добавляются в изучение. Механика:
-- слова ролика лежат в `phrases` c `source='video'`, `video_id=<id>`, изначально `hidden=true` (не мешают общему пулу «новых», пока не просмотрено видео);
-- тап «Посмотреть» на вкладке Видео пишет строку в `watched_videos`;
-- при открытии приложения `app/page.jsx` находит самый свежий просмотренный ролик с `words_added=false`, у которого есть слова, и показывает `VideoWords.jsx`;
-- слова добавляются **в любом случае** (и по «Начать сейчас», и по крестику): снимается `hidden`, слова пинятся в очередь «Учить новое», ставится `words_added=true`. «Начать сейчас» дополнительно открывает занятие (режим `lesson.mode='video'` по списку `phraseIds`).
-- на вкладке Видео у ролика со словами есть кнопка «Учить слова» — доучить в любой момент.
+## Words from videos (source='video')
+After a clip is watched, its words pop up and are added to learning. Mechanics:
+- a clip's words live in `phrases` with `source='video'`, `video_id=<id>`, initially `hidden=true` (so they don't clutter the general pool of "new" words until the video is watched);
+- tapping "Watch" on the Videos tab writes a row into `watched_videos`;
+- on app open, `app/page.jsx` finds the most recently watched clip with `words_added=false` that has words, and shows `VideoWords.jsx`;
+- the words are added **in any case** (both via "Start now" and via the close button): hidden is cleared, the words are pinned into the "Learn new" queue, words_added=true is set. "Start now" additionally opens a lesson (mode `lesson.mode='video'` by the `phraseIds` list).
+- on the Videos tab, a clip with words has a "Learn words" button — to finish learning them at any time.
 
-Наполнение слов — строго по транскрипции ролика (не выдумывать). Сбор субтитров: `scripts/fetch_transcripts.py` или вручную с ютуба; Claude вычленяет тайские фразы, добавляет тона/русский/частицы ค่ะ/คะ, дедуп по существующим `th`, вставляет под нужный `video_id` (тема — из `VIDEOS[].deck` в `lib/data.js`). Уже заведены как пример verbs (RJGG9hOJOVo) и pronouns (Vrgeac31-Cw).
+Filling in the words — strictly from the clip's transcript (don't make things up). Collecting subtitles: `scripts/fetch_transcripts.py` or manually from YouTube; Claude picks out the Thai phrases, adds tones/meaning/particles ค่ะ/คะ, dedups against existing `th`, inserts under the right `video_id` (topic — from `VIDEOS[].deck` in `lib/data.js`). Already set up as examples: verbs (RJGG9hOJOVo) and pronouns (Vrgeac31-Cw).
 
-## Чего НЕ делать
-- Не добавлять авторизацию, платежи, мультиязычность интерфейса.
-- Не менять схему БД без необходимости; не перезаписывать существующие данные.
-- Не усложнять геймификацию.
-- Не менять дизайн-макет «по вкусу».
+## What NOT to do
+- Don't add auth, payments, or UI multi-language.
+- Don't change the DB schema unless necessary; don't overwrite existing data.
+- Don't over-complicate gamification.
+- Don't change the design mockup "to taste".

@@ -9,7 +9,7 @@ const inputStyle = {
   padding: '14px 16px', fontSize: 15, fontWeight: 600, color: C.text,
 };
 
-// Шторка «Новая фраза»: ru/th/tr + выбор колоды, insert с source='manual'
+// "New phrase" sheet: ru/th/tr + deck choice, insert with source='manual'
 export default function AddSheet({ onClose, onAdd }) {
   const [ru, setRu] = useState('');
   const [th, setTh] = useState('');
@@ -28,7 +28,7 @@ export default function AddSheet({ onClose, onAdd }) {
       await onAdd({ ru: ru.trim(), th: th.trim(), tr: tr.trim(), deck });
       onClose();
     } catch (e) {
-      setError('Не сохранилось — проверь интернет и попробуй ещё раз');
+      setError('Could not save — check your connection and try again');
       setSaving(false);
     }
   };
@@ -39,7 +39,7 @@ export default function AddSheet({ onClose, onAdd }) {
       <div className="sheet-up" style={{ position: 'relative', background: '#fff', borderRadius: '28px 28px 0 0', padding: '12px 20px calc(24px + env(safe-area-inset-bottom))' }}>
         <div style={{ width: 36, height: 4, borderRadius: 99, background: '#E4E4E2', margin: '0 auto' }} />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 }}>
-          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>Новая фраза</div>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>New phrase</div>
           <div className="press-sm" onClick={onClose} style={{
             width: 34, height: 34, borderRadius: 999, background: C.bg,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -48,23 +48,23 @@ export default function AddSheet({ onClose, onAdd }) {
           </div>
         </div>
         <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, lineHeight: 1.5, marginTop: 6 }}>
-          Спроси у Claude фразу — и вставь сюда. Она попадёт в тему и в расписание повторений.
+          Ask Claude for a phrase and paste it here. It will go into the topic and the review schedule.
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 13, marginTop: 18 }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>По-русски</div>
-            <input value={ru} onChange={(e) => setRu(e.target.value)} placeholder="Подождите минутку" style={inputStyle} />
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>In English</div>
+            <input value={ru} onChange={(e) => setRu(e.target.value)} placeholder="Just a moment, please" style={inputStyle} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>По-тайски</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>In Thai</div>
             <input value={th} onChange={(e) => setTh(e.target.value)} placeholder="รอแป๊บนึงนะคะ" className="thai" style={inputStyle} />
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>Транскрипция</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginBottom: 6 }}>Transcription</div>
             <input value={tr} onChange={(e) => setTr(e.target.value)} placeholder="rɔɔ pɛ́p-nʉng ná khá" style={inputStyle} />
           </div>
         </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginTop: 16 }}>Тема</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.sub, marginTop: 16 }}>Topic</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
           {DECK_ORDER.map((key) => {
             const on = key === deck;
@@ -86,14 +86,14 @@ export default function AddSheet({ onClose, onAdd }) {
             flex: 1, background: C.bg, color: C.text, borderRadius: 999, height: 50,
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800,
           }}>
-            Очистить
+            Clear
           </div>
           <div className="press" onClick={submit} style={{
             flex: 2, background: '#17181A', color: '#fff', borderRadius: 999, height: 50,
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800,
             opacity: ru.trim() && th.trim() && !saving ? 1 : 0.5,
           }}>
-            {saving ? 'Сохраняю…' : 'Добавить'}
+            {saving ? 'Saving…' : 'Add'}
           </div>
         </div>
       </div>

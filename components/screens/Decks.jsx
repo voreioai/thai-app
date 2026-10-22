@@ -8,7 +8,7 @@ export default function Decks({ phrases, reviews, onDeck, onAdd }) {
   const decks = DECK_ORDER.map((key) => {
     const all = phrases.filter((p) => p.deck === key && !p.hidden);
     const learned = all.filter((p) => (reviews[p.id]?.box ?? -1) >= LEARNED_BOX).length;
-    // Начатые: уже были в занятии, но ещё не закреплены
+    // Started: already seen in a session, but not yet learned
     const started = all.filter((p) => reviews[p.id] && reviews[p.id].box < LEARNED_BOX).length;
     const total = all.length;
     return {
@@ -25,7 +25,7 @@ export default function Decks({ phrases, reviews, onDeck, onAdd }) {
   return (
     <div className="fade-in">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <ScreenTitle>Темы</ScreenTitle>
+        <ScreenTitle>Topics</ScreenTitle>
         <div className="press-sm" onClick={onAdd} style={{
           width: 44, height: 44, borderRadius: 999, background: '#17181A',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -44,8 +44,8 @@ export default function Decks({ phrases, reviews, onDeck, onAdd }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 15.5, fontWeight: 800 }}>{d.name}</div>
                 <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 2 }}>
-                  {d.learned} из {d.total} {plural(d.total, 'фразы', 'фраз', 'фраз')} закреплено
-                  {d.started > 0 ? ` · ${d.started} в изучении` : ''}
+                  {d.learned} of {d.total} {plural(d.total, 'phrase', 'phrases')} learned
+                  {d.started > 0 ? ` · ${d.started} in progress` : ''}
                 </div>
               </div>
               <div style={{ width: 32, height: 32, borderRadius: 999, background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

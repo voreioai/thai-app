@@ -3,7 +3,7 @@
 import { C, BackBtn, SpeakBtn, SectionLabel, NoVoiceHint } from '@/components/ui';
 import { PLACES, THEY_SAY, DECK_META } from '@/lib/data';
 
-// «Я сейчас в…» — шпаргалка на 30 секунд перед входом в место
+// "I am now at…" — a 30-second cheat sheet before you enter a place
 export default function Place({ deck, phrases, noVoice, onBack }) {
   const place = PLACES.find((p) => p.deck === deck);
   const say = phrases.filter((p) => p.deck === deck && !p.hidden).slice(0, 5);
@@ -17,14 +17,14 @@ export default function Place({ deck, phrases, noVoice, onBack }) {
           <div style={{ fontSize: 25, fontWeight: 800, letterSpacing: -0.5 }}>
             {place?.emoji} {place?.name || DECK_META[deck]?.name}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 2 }}>шпаргалка на 30 секунд</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 2 }}>30-second cheat sheet</div>
         </div>
       </div>
 
       {noVoice && <NoVoiceHint />}
 
       <div style={{ marginTop: 20 }}>
-        <SectionLabel>СКАЖИ ЭТО</SectionLabel>
+        <SectionLabel>SAY THIS</SectionLabel>
       </div>
       <div style={{ background: '#fff', borderRadius: 24, marginTop: 10, overflow: 'hidden' }}>
         {say.map((p, i) => (
@@ -41,12 +41,12 @@ export default function Place({ deck, phrases, noVoice, onBack }) {
           </div>
         ))}
         {say.length === 0 && (
-          <div style={{ padding: 18, fontSize: 13, fontWeight: 500, color: C.sub }}>В этой теме пока нет фраз</div>
+          <div style={{ padding: 18, fontSize: 13, fontWeight: 500, color: C.sub }}>No phrases in this topic yet</div>
         )}
       </div>
 
       <div style={{ marginTop: 22 }}>
-        <SectionLabel>ТЕБЕ МОГУТ СКАЗАТЬ</SectionLabel>
+        <SectionLabel>THEY MIGHT SAY</SectionLabel>
       </div>
       <div style={{ background: '#17181A', borderRadius: 24, marginTop: 10, overflow: 'hidden' }}>
         {theySay.map((p, i) => (

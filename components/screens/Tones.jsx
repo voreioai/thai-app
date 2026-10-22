@@ -6,9 +6,9 @@ import { TONES, TONE_DEMO } from '@/lib/data';
 export default function Tones({ noVoice }) {
   return (
     <div className="fade-in">
-      <ScreenTitle>Тона</ScreenTitle>
+      <ScreenTitle>Tones</ScreenTitle>
       <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>
-        В тайском 5 тонов, и тон меняет смысл слова. Слушай и повторяй вслух.
+        Thai has 5 tones, and tone changes a word's meaning. Listen and repeat out loud.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 20 }}>
@@ -53,11 +53,11 @@ export default function Tones({ noVoice }) {
       </div>
 
       <div style={{ fontSize: 12, fontWeight: 500, color: C.faint, lineHeight: 1.5, marginTop: 14, padding: '0 6px' }}>
-        Один и тот же значок над буквой в разных словах может звучать по-разному — тон зависит ещё и от самой согласной. Значки — ориентир, надёжнее слух и повтор вслух.
+        The same mark over a letter can sound different in different words — the tone also depends on the consonant itself. The marks are a guide; your ear and repeating out loud are more reliable.
       </div>
 
       <div style={{ marginTop: 24 }}>
-        <SectionLabel>ПОЧУВСТВУЙ РАЗНИЦУ</SectionLabel>
+        <SectionLabel>FEEL THE DIFFERENCE</SectionLabel>
       </div>
       <div style={{ background: '#17181A', borderRadius: 24, marginTop: 10, padding: '6px 0', overflow: 'hidden' }}>
         {TONE_DEMO.map((w, i) => (
@@ -77,7 +77,7 @@ export default function Tones({ noVoice }) {
         ))}
       </div>
       <div style={{ fontSize: 12, fontWeight: 500, color: C.faint, lineHeight: 1.5, marginTop: 12, padding: '0 6px' }}>
-        Почти одинаковые слова, а смысл разный — только из-за тона. Классика: ไม้ใหม่ไม่ไหม้ — «новое дерево не горит».
+        Nearly identical words, yet different meanings — all because of tone. The classic: ไม้ใหม่ไม่ไหม้ — "new wood does not burn".
       </div>
     </div>
   );

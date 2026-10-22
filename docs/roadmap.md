@@ -1,11 +1,11 @@
-# Роадмап
+# Roadmap
 
-Идеи для развития (contributions welcome):
+Ideas for the future (contributions welcome):
 
-- **Другие языки-цели.** Сейчас проект заточен под тайский (тоны, частица).
-  Можно вынести язык в конфиг и обобщить генерацию контента.
-- **Больше диалогов и мест** в «Я сейчас в…».
-- **Экспорт/импорт колод** (JSON) — делиться наборами фраз.
-- **Расширение видео-пайплайна** — авто-сбор субтитров, больше плейлистов.
-- **Настройка профиля в UI** — менять имя/пол/темы без правки `.env.local`.
-- **Улучшение озвучки** — выбор голоса, подсказка по установке Thai TTS.
+- **Other target languages.** Right now the project is tailored to Thai (tones, the particle).
+  The language could be moved into a config and content generation generalized.
+- **More dialogues and places** in "I'm now at…".
+- **Deck export/import** (JSON) — to share sets of phrases.
+- **Expanding the video pipeline** — auto-collecting subtitles, more playlists.
+- **Profile settings in the UI** — change name/gender/topics without editing `.env.local`.
+- **Better speech** — voice selection, a hint for installing a Thai TTS voice.

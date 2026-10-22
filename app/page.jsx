@@ -21,19 +21,19 @@ import VideoWords from '@/components/screens/VideoWords';
 
 export default function App() {
   const [tab, setTab] = useState('home');
-  // Оверлеи поверх вкладок: {type:'deck'|'place'|'dialog', id} или {type:'lesson', mode, deck?}
+  // Overlays on top of tabs: {type:'deck'|'place'|'dialog', id} or {type:'lesson', mode, deck?}
   const [overlay, setOverlay] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
 
   const [phrases, setPhrases] = useState([]);
   const [reviews, setReviews] = useState({}); // phrase_id -> {box, due_date}
   const [activity, setActivity] = useState([]);
-  // Просмотренные видео: [{ video_id, words_added, watched_at }] — для попапа «Новые слова из видео»
+  // Watched videos: [{ video_id, words_added, watched_at }] — for the "New words from a video" popup
   const [watchedVideos, setWatchedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [noVoice, setNoVoice] = useState(false);
-  // Слова, закинутые с главной в очередь «Учить новое» (➕) — переживают перезагрузку
+  // Words pushed from the home screen into the "Learn new" queue (➕) — survive a reload
   const [pinned, setPinned] = useState([]);
 
   const load = async () => {
@@ -79,7 +79,7 @@ export default function App() {
     () => newPhrases.filter((p) => p.source === 'chat').length,
     [newPhrases]
   );
-  // Последние слова: только добавленные пользователем (из чата или вручную), по дате добавления, новые сверху
+  // Recent words: only user-added ones (from chat or manual), by date added, newest first
   const recentWords = useMemo(
     () =>
       visible
@@ -90,7 +90,7 @@ export default function App() {
   );
   const streak = useMemo(() => calcStreak(activity), [activity]);
 
-  // Слова, привязанные к видео (source='video'): video_id -> [phrases]
+  // Words tied to a video (source='video'): video_id -> [phrases]
   const videoPhrases = useMemo(() => {
     const map = {};
     for (const p of phrases) {
@@ -100,8 +100,8 @@ export default function App() {
     return map;
   }, [phrases]);
 
-  // Попап показываем для самого свежего просмотренного видео, у которого слова
-  // ещё не добавлены (words_added=false) и для которого слова вообще заведены.
+  // Show the popup for the most recently watched video whose words have not been
+  // added yet (words_added=false) and for which words actually exist.
   const pendingVideo = useMemo(() => {
     const cand = watchedVideos
       .filter((w) => !w.words_added && (videoPhrases[w.video_id]?.length))
@@ -115,15 +115,15 @@ export default function App() {
   };
   const unpin = (id) => savePinned(pinned.filter((x) => x !== id));
 
-  // ➕ на главной: закинуть слово в очередь ближайшего занятия «Учить новое» (тап повторно — убрать)
+  // ➕ on the home screen: push a word into the next "Learn new" session's queue (tap again to remove)
   const togglePin = (phrase) => {
     if (pinned.includes(phrase.id)) unpin(phrase.id);
     else savePinned([...pinned, phrase.id]);
   };
 
-  // Добавить слова видео в изучение: снять hidden с ВЫБРАННЫХ (не исключённых),
-  // закинуть их в очередь «Учить новое» и пометить видео обработанным (words_added=true).
-  // excludedIds — слова, с которых сняли галочку в попапе: они остаются скрытыми.
+  // Add a video's words to learning: clear hidden on the SELECTED ones (not excluded),
+  // push them into the "Learn new" queue and mark the video as processed (words_added=true).
+  // excludedIds — words unchecked in the popup: they stay hidden.
   const addVideoWords = async (videoId, excludedIds = []) => {
     const list = videoPhrases[videoId] || [];
     if (!list.length) return;
@@ -145,7 +145,7 @@ export default function App() {
     if (ids.length) setOverlay({ type: 'lesson', mode: 'video', videoId, phraseIds: ids });
   };
 
-  // ✓ на главной: «уже знаю» — сразу закрепить (box 4); повторный тап отменяет и возвращает в новые
+  // ✓ on the home screen: "already know" — mark as learned at once (box 4); tap again to undo and return it to new
   const toggleLearned = async (phrase) => {
     if ((reviews[phrase.id]?.box ?? -1) >= LEARNED_BOX) {
       setReviews((prev) => {
@@ -167,7 +167,7 @@ export default function App() {
     }
   };
 
-  // Оценка карточки: обновить box/due_date в reviews (upsert)
+  // Grade a card: update box/due_date in reviews (upsert)
   const gradePhrase = async (phrase, grade) => {
     const box = nextBox(reviews[phrase.id]?.box ?? 0, grade);
     const row = {
@@ -181,7 +181,7 @@ export default function App() {
     await supabase.from('reviews').upsert(row).then(() => {});
   };
 
-  // Завершение сессии: upsert в activity по дню (для стрика)
+  // Finishing a session: upsert into activity by day (for the streak)
   const finishSession = async (mode) => {
     const existing = activity.find((a) => a.day === today);
     const row = {
@@ -199,7 +199,7 @@ export default function App() {
     await supabase.from('phrases').update({ hidden }).eq('id', phrase.id);
   };
 
-  // Скрыть слово прямо с карточки в «Учить новое» (иконка-глаз) — вернуть можно в колоде
+  // Hide a word right from the card in "Learn new" (eye icon) — you can bring it back in the deck
   const hideFromLesson = (phrase) => {
     if (pinned.includes(phrase.id)) unpin(phrase.id);
     toggleHidden(phrase);
@@ -215,7 +215,7 @@ export default function App() {
     setPhrases((prev) => [...prev, genderPhrase(data)]);
   };
 
-  // Перемешать фразы, чтобы похожие слова не шли подряд и порядок не подсказывал ответ
+  // Shuffle phrases so similar words don't run back-to-back and the order doesn't hint at the answer
   const shuffle = (arr) => {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -225,11 +225,11 @@ export default function App() {
     return a;
   };
 
-  // Очередь занятия по режиму
+  // Session queue by mode
   const lessonQueue = useMemo(() => {
     if (!overlay || overlay.type !== 'lesson') return [];
     if (overlay.mode === 'new') {
-      // Закинутые с главной (➕) — в начало очереди, внутри групп порядок случайный
+      // Pushed from the home screen (➕) — to the front of the queue, random order within groups
       const pin = new Set(pinned);
       return shuffle(newPhrases)
         .sort((a, b) => (pin.has(b.id) ? 1 : 0) - (pin.has(a.id) ? 1 : 0))
@@ -241,22 +241,22 @@ export default function App() {
       return shuffle(phrases.filter((p) => set.has(p.id)));
     }
     return shuffle(visible.filter((p) => p.deck === overlay.deck));
-    // очередь фиксируется на момент старта занятия
+    // the queue is fixed at the moment the session starts
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overlay]);
 
   const lessonTitle =
     overlay?.type === 'lesson'
-      ? overlay.mode === 'new' ? 'Новое'
-        : overlay.mode === 'review' ? 'Повторение'
-        : overlay.mode === 'video' ? 'Из видео'
+      ? overlay.mode === 'new' ? 'New'
+        : overlay.mode === 'review' ? 'Review'
+        : overlay.mode === 'video' ? 'From video'
         : DECK_META[overlay.deck].name
       : '';
 
   const inLesson = overlay?.type === 'lesson';
 
   const content = () => {
-    // Диалоги и тоны не зависят от базы — показываем сразу
+    // Dialogues and tones don't depend on the database — show them right away
     if (!overlay && tab === 'dialogs') {
       return <Dialogs onOpen={(id) => setOverlay({ type: 'dialog', id })} />;
     }
@@ -272,16 +272,16 @@ export default function App() {
     if (loading) {
       return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: C.faint, fontSize: 14, fontWeight: 600 }}>
-          Загружаю фразы…
+          Loading phrases…
         </div>
       );
     }
     if (loadError) {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 16 }}>
-          <div style={{ color: C.sub, fontSize: 14, fontWeight: 600, textAlign: 'center' }}>Не получилось загрузить фразы.<br />Проверь интернет.</div>
+          <div style={{ color: C.sub, fontSize: 14, fontWeight: 600, textAlign: 'center' }}>Couldn't load phrases.<br />Check your connection.</div>
           <div className="press" onClick={load} style={{ background: '#17181A', color: '#fff', borderRadius: 999, padding: '13px 28px', fontSize: 14, fontWeight: 800 }}>
-            Попробовать снова
+            Try again
           </div>
         </div>
       );

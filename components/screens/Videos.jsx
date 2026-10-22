@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabase';
 import { C, Icon, ScreenTitle } from '@/components/ui';
 import { VIDEOS } from '@/lib/data';
 
-// Вкладка «Видео»: ролики с ютуб-канала по порядку. «Посмотреть» открывает YouTube
-// и помечает видео просмотренным. Отметки хранятся в Supabase (таблица watched_videos),
-// поэтому переживают перезагрузку и синхронизируются между устройствами.
+// "Videos" tab: clips from a YouTube channel, in order. "Watch" opens YouTube
+// and marks the video as watched. The marks are stored in Supabase (table watched_videos),
+// so they survive a reload and sync across devices.
 export default function Videos() {
   const [watched, setWatched] = useState([]);
 
@@ -25,17 +25,17 @@ export default function Videos() {
 
   return (
     <div className="fade-in">
-      <ScreenTitle>Видео</ScreenTitle>
+      <ScreenTitle>Videos</ScreenTitle>
       <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>
-        Смотри по порядку — просмотренные отмечаются галочкой.
+        Watch them in order — watched ones get a checkmark.
       </div>
 
       {VIDEOS.length === 0 && (
         <div style={{ background: '#fff', borderRadius: 24, padding: '28px 20px', marginTop: 20, textAlign: 'center' }}>
           <div style={{ fontSize: 30 }}>🎬</div>
-          <div style={{ fontSize: 15, fontWeight: 800, marginTop: 10 }}>Видео пока не добавлены</div>
+          <div style={{ fontSize: 15, fontWeight: 800, marginTop: 10 }}>No videos added yet</div>
           <div style={{ fontSize: 13, fontWeight: 500, color: C.sub, marginTop: 6, lineHeight: 1.5 }}>
-            Пришли Claude ссылку на плейлист —<br />ролики появятся здесь
+            Send Claude a playlist link —<br />the videos will appear here
           </div>
         </div>
       )}
@@ -54,7 +54,7 @@ export default function Videos() {
                   : <svg width="16" height="16" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill={C.text} /></svg>}
               </div>
               <div style={{ flex: 1, minWidth: 0, opacity: seen ? 0.5 : 1 }}>
-                <div style={{ fontSize: 15.5, fontWeight: 800 }}>Видео {i + 1}</div>
+                <div style={{ fontSize: 15.5, fontWeight: 800 }}>Video {i + 1}</div>
                 {v.title && <div style={{ fontSize: 12.5, fontWeight: 500, color: C.sub, marginTop: 2, lineHeight: 1.35 }}>{v.title}</div>}
               </div>
               <a
@@ -69,7 +69,7 @@ export default function Videos() {
                   textDecoration: 'none', flexShrink: 0,
                 }}
               >
-                {seen ? 'Ещё раз' : 'Посмотреть'}
+                {seen ? 'Again' : 'Watch'}
               </a>
             </div>
           );
