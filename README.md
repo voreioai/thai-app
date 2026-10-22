@@ -5,6 +5,10 @@ A personal spoken-Thai trainer. Mobile-first PWA: spaced repetition,
 The content is hand-checked, and setup runs **as a conversation with Claude** — it
 personalizes the app for you and fills the database.
 
+## Screenshots
+
+![Thai Trainer — Today, Topics, Tones, Videos and Progress screens](docs/screenshots/overview.png)
+
 ## Key value
 - Ready, hand-checked content (≈220 phrases across 7 topics, dialogues, tones).
 - Personalization: your name, gender (polite particle), your topics.
